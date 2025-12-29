@@ -46,19 +46,41 @@ FULL_QUESTION_BANK = [
 # =======================================================
 # == INISIALISASI FIREBASE ==
 # =======================================================
-try:
-    if not firebase_admin._apps:
-        # MENGGUNAKAN FILE KUNCI ASLI
-        cred = credentials.Certificate('serviceAccountKey.json')
+json_config = os.environ.get('serviceAccountKey.json')
+
+if json_config:
+    try:
+        # 1. Mengubah string JSON menjadi Dictionary Python
+        cred_dict = json.loads(json_config)
+        cred = credentials.Certificate(cred_dict)
         
+        # 2. Inisialisasi App dengan Storage Bucket (PENTING UNTUK UPLOAD GAMBAR)
+        # Ganti 'nama-project-anda.appspot.com' dengan nama bucket asli dari console Firebase
         firebase_admin.initialize_app(cred, {
-            'storageBucket': 'cloud-saya.appspot.com' 
+            'storageBucket': 'id-project-anda.appspot.com' 
         })
+
+        # 3. MENDEFINISIKAN VARIABEL GLOBAL DB DAN BUCKET (PENTING!)
+        # Tanpa dua baris ini, perintah db.collection() di bawah akan error
+        db = firestore.client()
+        bucket = storage.bucket()
         
-    db = firestore.client()
-    bucket = storage.bucket()
-except Exception as e:
-    print(f"CRITICAL ERROR: Gagal inisialisasi Firebase. {e}")
+        print("Berhasil terkoneksi ke Firebase via Azure Env Variable!")
+
+    except Exception as e:
+        print(f"Gagal inisialisasi Firebase: {e}")
+else:
+    # Fallback untuk lokal (Opsional, jika ingin mengetes di laptop tanpa env var)
+    print("Mencoba mode lokal dengan file fisik...")
+    try:
+        cred = credentials.Certificate("serviceAccountKey.json")
+        firebase_admin.initialize_app(cred, {
+            'storageBucket': 'id-project-anda.appspot.com'
+        })
+        db = firestore.client()
+        bucket = storage.bucket()
+    except Exception as e:
+        print(f"Error Fatal: Kredensial tidak ditemukan. {e}")
 
 # =======================================================
 # == DECORATORS & HELPERS ==
