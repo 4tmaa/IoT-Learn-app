@@ -44,44 +44,44 @@ FULL_QUESTION_BANK = [
 ]
 
 # =======================================================
-# == INISIALISASI FIREBASE ==
+# == INISIALISASI FIREBASE (DIPERBAIKI) ==
 # =======================================================
-json_config = os.environ.get('serviceAccountKey.json')
+# Ganti nama pemanggil di sini sesuai nama baru di Azure
+json_config = os.environ.get('FIREBASE_CREDENTIALS') 
 
 if json_config:
     try:
-        # 1. Mengubah string JSON menjadi Dictionary Python
+        # Mengubah string JSON menjadi Dictionary Python
         cred_dict = json.loads(json_config)
         cred = credentials.Certificate(cred_dict)
         
-        # 2. Inisialisasi App dengan Storage Bucket (PENTING UNTUK UPLOAD GAMBAR)
-        # Ganti 'nama-project-anda.appspot.com' dengan nama bucket asli dari console Firebase
+        # Inisialisasi App (Pastikan nama bucket benar!)
         firebase_admin.initialize_app(cred, {
-            'storageBucket': 'id-project-anda.appspot.com' 
+            'storageBucket': 'id-proyek-anda.appspot.com' 
         })
 
-        # 3. MENDEFINISIKAN VARIABEL GLOBAL DB DAN BUCKET (PENTING!)
-        # Tanpa dua baris ini, perintah db.collection() di bawah akan error
+        # Definisikan DB dan Bucket
         db = firestore.client()
         bucket = storage.bucket()
         
-        print("Berhasil terkoneksi ke Firebase via Azure Env Variable!")
+        print("✅ SUKSES: Terkoneksi ke Firebase via Azure Env Variable!")
 
     except Exception as e:
-        print(f"Gagal inisialisasi Firebase: {e}")
+        print(f"❌ GAGAL Inisialisasi Firebase: {e}")
 else:
-    # Fallback untuk lokal (Opsional, jika ingin mengetes di laptop tanpa env var)
+    # Kode ini hanya berjalan jika Env Variable TIDAK DITEMUKAN
+    print("⚠️ PERINGATAN: Environment Variable 'FIREBASE_CREDENTIALS' tidak terbaca/kosong.")
     print("Mencoba mode lokal dengan file fisik...")
     try:
+        # Pastikan file ini ada di laptop Anda untuk testing lokal
         cred = credentials.Certificate("serviceAccountKey.json")
         firebase_admin.initialize_app(cred, {
-            'storageBucket': 'id-project-anda.appspot.com'
+            'storageBucket': 'id-proyek-anda.appspot.com'
         })
         db = firestore.client()
         bucket = storage.bucket()
     except Exception as e:
-        print(f"Error Fatal: Kredensial tidak ditemukan. {e}")
-
+        print(f"🔥 ERROR FATAL: Kredensial tidak ditemukan sama sekali. {e}")
 # =======================================================
 # == DECORATORS & HELPERS ==
 # =======================================================
