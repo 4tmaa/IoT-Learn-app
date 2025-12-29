@@ -1,0 +1,19 @@
+# Virtual Environment
+venv/
+env/
+.env
+
+# Python compilation files
+__pycache__/
+*.pyc
+
+# Instance folder (database lokal Flask default)
+instance/
+
+# IDE settings (VS Code / PyCharm)
+.vscode/
+.idea/
+
+# Kunci Rahasia & Konfigurasi Sensitif (SANGAT PENTING)
+serviceAccountKey.json
+*.log
